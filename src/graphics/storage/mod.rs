@@ -1,0 +1,6 @@
+mod material_index;
+
+pub use material_index::{
+    MaterialIndexStorageBuffer, MaterialIndexStorageBufferData,
+    MaterialIndexStorageBufferDataWriteError, MaterialTextureRef,
+};

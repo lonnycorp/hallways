@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name={APP_NAME}
+Exec=hallways
+Icon=hallways
+Categories=Game;
+Terminal=false
+Comment={DESCRIPTION}

@@ -1,0 +1,97 @@
+use crate::graphics::texture::{
+    sampler_bind_group_layout_entry, texture_array_binding_array_bind_group_entry,
+    texture_array_binding_array_bind_group_layout_entry, Sampler, TextureArray,
+};
+
+const BIND_GROUP_INDEX: u32 = 0;
+
+#[derive(Copy, Clone)]
+pub struct TextureBucket {
+    pub width: u32,
+    pub height: u32,
+    pub layers: usize,
+}
+
+pub const TEXTURE_BUCKETS: [TextureBucket; 6] = [
+    TextureBucket {
+        width: 0x800,
+        height: 0x800,
+        layers: 0x1,
+    },
+    TextureBucket {
+        width: 0x400,
+        height: 0x400,
+        layers: 0x4,
+    },
+    TextureBucket {
+        width: 0x200,
+        height: 0x200,
+        layers: 0x8,
+    },
+    TextureBucket {
+        width: 0x100,
+        height: 0x100,
+        layers: 0x20,
+    },
+    TextureBucket {
+        width: 0x80,
+        height: 0x80,
+        layers: 0x40,
+    },
+    TextureBucket {
+        width: 0x40,
+        height: 0x40,
+        layers: 0x100,
+    },
+];
+
+pub fn texture_bind_group_layout_create(device: &wgpu::Device) -> wgpu::BindGroupLayout {
+    return device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: Some("Level Texture Bind Group Layout"),
+        entries: &[
+            sampler_bind_group_layout_entry(0),
+            sampler_bind_group_layout_entry(1),
+            texture_array_binding_array_bind_group_layout_entry(2, TEXTURE_BUCKETS.len() as u32),
+        ],
+    });
+}
+
+pub struct PipelineLevelBindGroupTexture {
+    bind_group: wgpu::BindGroup,
+}
+
+impl PipelineLevelBindGroupTexture {
+    pub fn new(device: &wgpu::Device, diffuse: &[TextureArray; TEXTURE_BUCKETS.len()]) -> Self {
+        let layout = texture_bind_group_layout_create(device);
+
+        let linear_sampler = Sampler::new(
+            device,
+            (wgpu::AddressMode::Repeat, wgpu::AddressMode::Repeat),
+            wgpu::FilterMode::Linear,
+        );
+        let nearest_sampler = Sampler::new(
+            device,
+            (wgpu::AddressMode::Repeat, wgpu::AddressMode::Repeat),
+            wgpu::FilterMode::Nearest,
+        );
+
+        let views: [&wgpu::TextureView; TEXTURE_BUCKETS.len()] =
+            std::array::from_fn(|i| diffuse[i].view());
+
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("Level Texture Bind Group"),
+            layout: &layout,
+            entries: &[
+                linear_sampler.bind_group_entry(0),
+                nearest_sampler.bind_group_entry(1),
+                texture_array_binding_array_bind_group_entry(2, &views),
+            ],
+        });
+
+        return Self { bind_group };
+    }
+
+    pub fn bind<'a>(&'a self, rp: &mut wgpu::RenderPass<'a>) {
+        rp.set_bind_group(BIND_GROUP_INDEX, &self.bind_group, &[]);
+    }
+}

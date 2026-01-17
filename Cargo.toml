@@ -1,0 +1,43 @@
+[package]
+name = "hallways"
+version = "0.1.0"
+edition = "2021"
+authors = ["LonnyCorp (timlonsdale@gmail.com)"]
+description = "First-person exploration game of internet-hosted 3D spaces linked by URL portals."
+homepage = "https://lonny.io"
+license = "CC-BY-NC-ND-4.0"
+
+[dependencies]
+winit = { version = "0.30", features = ["serde"] }
+pollster = "0.4"
+wgpu = "23"
+glam = { version = "0.29", features = ["bytemuck", "serde"] }
+bytemuck = { version = "1", features = ["derive"] }
+env_logger = "0.11"
+include_dir = "0.7"
+ureq = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "5"
+url = { version = "2", features = ["serde"] }
+lru = "0.12"
+gltf = "1"
+image = "0.25"
+ico = "0.3"
+parry3d = "0.17"
+rodio = "0.20"
+strum = { version = "0.26", features = ["derive"] }
+rayon = "1"
+
+[build-dependencies]
+winresource = "0.1"
+
+[[bin]]
+name = "release"
+path = "release/main.rs"
+
+
+[lints.clippy]
+module_inception = "allow"
+needless_return = "allow"
+upper_case_acronyms = "allow"
